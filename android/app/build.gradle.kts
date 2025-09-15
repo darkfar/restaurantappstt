@@ -9,7 +9,7 @@ android {
     compileSdk = 34
 
     compileOptions {
-        coreLibraryDesugaringEnabled = true
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -32,25 +32,25 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled = false
-            shrinkResources = false
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
         debug {
-            minifyEnabled = false
-            shrinkResources = false
-            debuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
         }
     }
 
-    packagingOptions {
-        pickFirst = mutableSetOf(
+    packaging {
+        pickFirst.addAll(listOf(
             "**/libc++_shared.so",
             "**/libjsc.so"
-        )
+        ))
     }
 }
 
