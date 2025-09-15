@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.restaurantapp"
-    compileSdk = 34
+    compileSdk = 36  // Updated to 36 as suggested in the warning
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -20,13 +20,12 @@ android {
 
     defaultConfig {
         applicationId = "com.example.restaurantapp"
-        minSdk = 21  // Set minimum to 21 for better compatibility
-        targetSdk = 34
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36  // Updated to match compileSdk
         versionCode = 1
         versionName = "1.0.0"
         multiDexEnabled = true
 
-        // Add proguard rules for release builds
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -47,10 +46,12 @@ android {
     }
 
     packaging {
-        pickFirst.addAll(listOf(
-            "**/libc++_shared.so",
-            "**/libjsc.so"
-        ))
+        resources {
+            pickFirsts += listOf(
+                "**/libc++_shared.so",
+                "**/libjsc.so"
+            )
+        }
     }
 }
 
@@ -62,7 +63,7 @@ dependencies {
     // Core library desugaring untuk compatibility
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    // Multidex support
+    // Multidex support - FIXED TYPO: multidx -> multidex
     implementation("androidx.multidex:multidex:2.0.1")
 
     // AndroidX core untuk compatibility
