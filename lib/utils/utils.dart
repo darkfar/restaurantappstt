@@ -84,8 +84,7 @@ class NotificationHelper {
   Future<void> _configureNotifications() async {
     try {
       const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('app_icon');
-
+      AndroidInitializationSettings('@mipmap/ic_launcher');
       const DarwinInitializationSettings initializationSettingsIOS =
       DarwinInitializationSettings(
         requestAlertPermission: false,

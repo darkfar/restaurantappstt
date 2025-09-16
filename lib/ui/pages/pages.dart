@@ -4,25 +4,27 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../widgets/widgets.dart';
-
 import '../../data/data.dart';
 import '../../providers/providers.dart';
 
-
-
 // =============================================================================
-// MAIN NAVIGATION
+// MAIN NAVIGATION - Now using Provider for state management
 // =============================================================================
 
-class MainNavigation extends StatefulWidget {
+class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key});
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => NavigationProvider(),
+      child: const _MainNavigationView(),
+    );
+  }
 }
 
-class _MainNavigationState extends State<MainNavigation> {
-  int _selectedIndex = 0;
+class _MainNavigationView extends StatelessWidget {
+  const _MainNavigationView();
 
   final List<Widget> _pages = const [
     HomePage(),
@@ -30,115 +32,113 @@ class _MainNavigationState extends State<MainNavigation> {
     SettingsPage(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: Consumer<FavoriteProvider>(
-        builder: (context, favoriteProvider, child) {
-          return BottomNavigationBar(
-            items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                activeIcon: Icon(Icons.home),
-                label: 'Beranda',
-              ),
-              BottomNavigationBarItem(
-                icon: Stack(
-                  children: [
-                    const Icon(Icons.favorite_border),
-                    if (favoriteProvider.favoriteCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            favoriteProvider.favoriteCount > 99
-                                ? '99+'
-                                : '${favoriteProvider.favoriteCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
+    return Consumer<NavigationProvider>(
+      builder: (context, navigationProvider, child) {
+        return Scaffold(
+          body: IndexedStack(
+            index: navigationProvider.selectedIndex,
+            children: _pages,
+          ),
+          bottomNavigationBar: Consumer<FavoriteProvider>(
+            builder: (context, favoriteProvider, child) {
+              return BottomNavigationBar(
+                items: [
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    activeIcon: Icon(Icons.home),
+                    label: 'Beranda',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Stack(
+                      children: [
+                        const Icon(Icons.favorite_border),
+                        if (favoriteProvider.favoriteCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              child: Text(
+                                favoriteProvider.favoriteCount > 99
+                                    ? '99+'
+                                    : '${favoriteProvider.favoriteCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-                activeIcon: Stack(
-                  children: [
-                    const Icon(Icons.favorite),
-                    if (favoriteProvider.favoriteCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            favoriteProvider.favoriteCount > 99
-                                ? '99+'
-                                : '${favoriteProvider.favoriteCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
+                      ],
+                    ),
+                    activeIcon: Stack(
+                      children: [
+                        const Icon(Icons.favorite),
+                        if (favoriteProvider.favoriteCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              child: Text(
+                                favoriteProvider.favoriteCount > 99
+                                    ? '99+'
+                                    : '${favoriteProvider.favoriteCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-                label: 'Favorit',
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                activeIcon: Icon(Icons.settings),
-                label: 'Pengaturan',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor: Colors.grey,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            elevation: 8,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          );
-        },
-      ),
+                      ],
+                    ),
+                    label: 'Favorit',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.settings),
+                    activeIcon: Icon(Icons.settings),
+                    label: 'Pengaturan',
+                  ),
+                ],
+                currentIndex: navigationProvider.selectedIndex,
+                selectedItemColor: Theme.of(context).primaryColor,
+                unselectedItemColor: Colors.grey,
+                onTap: navigationProvider.setSelectedIndex,
+                type: BottomNavigationBarType.fixed,
+                elevation: 8,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 // =============================================================================
-// HOME PAGE
+// HOME PAGE - Using Provider state management
 // =============================================================================
 
 class HomePage extends StatefulWidget {
@@ -272,7 +272,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 // =============================================================================
-// SEARCH PAGE
+// SEARCH PAGE - Already using Provider correctly
 // =============================================================================
 
 class SearchPage extends StatelessWidget {
@@ -449,7 +449,7 @@ class SearchPage extends StatelessWidget {
 }
 
 // =============================================================================
-// FAVORITE PAGE
+// FAVORITE PAGE - Already using Provider correctly
 // =============================================================================
 
 class FavoritePage extends StatelessWidget {
@@ -717,9 +717,10 @@ class FavoritePage extends StatelessWidget {
 }
 
 // =============================================================================
-// RESTAURANT DETAIL PAGE
+// RESTAURANT DETAIL PAGE - Using Provider state management
 // =============================================================================
 
+// Updated RestaurantDetailPage in pages.dart
 class RestaurantDetailPage extends StatefulWidget {
   final String restaurantId;
 
@@ -755,10 +756,84 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
             case Success(data: final restaurant):
               return CustomScrollView(
                 slivers: [
-                  // App Bar with Image
+                  // App Bar with Image and Favorite Button
                   SliverAppBar(
                     expandedHeight: 300,
                     pinned: true,
+                    actions: [
+                      // Favorite Button in AppBar
+                      Consumer<FavoriteProvider>(
+                        builder: (context, favoriteProvider, child) {
+                          final isFavorite = favoriteProvider.isFavorite(restaurant.id);
+
+                          return Container(
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: InkWell(
+                              onTap: () async {
+                                try {
+                                  // Create Restaurant object from RestaurantDetail
+                                  final restaurantObj = Restaurant(
+                                    id: restaurant.id,
+                                    name: restaurant.name,
+                                    description: restaurant.description,
+                                    pictureId: restaurant.pictureId,
+                                    city: restaurant.city,
+                                    rating: restaurant.rating,
+                                  );
+
+                                  await favoriteProvider.toggleFavorite(restaurantObj);
+
+                                  if (context.mounted) {
+                                    final message = isFavorite
+                                        ? '${restaurant.name} dihapus dari favorit'
+                                        : '${restaurant.name} ditambahkan ke favorit';
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(message),
+                                        backgroundColor: isFavorite ? Colors.orange : Colors.green,
+                                        behavior: SnackBarBehavior.floating,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Gagal mengubah status favorit'),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Icon(
+                                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                                  color: isFavorite ? Colors.red : Colors.red,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                     flexibleSpace: FlexibleSpaceBar(
                       background: CachedNetworkImage(
                         imageUrl: ApiService.getImageUrl(
@@ -793,8 +868,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Restaurant Info
-                          _buildRestaurantInfo(restaurant),
+                          // Restaurant Info with Favorite Button
+                          _buildRestaurantInfoWithFavorite(restaurant),
                           const SizedBox(height: 24),
 
                           // Categories
@@ -833,7 +908,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 
-  Widget _buildRestaurantInfo(restaurant) {
+  Widget _buildRestaurantInfoWithFavorite(restaurant) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -891,6 +966,72 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               ),
             ),
           ],
+        ),
+
+        const SizedBox(height: 16),
+
+        // Favorite Action Button
+        Consumer<FavoriteProvider>(
+          builder: (context, favoriteProvider, child) {
+            final isFavorite = favoriteProvider.isFavorite(restaurant.id);
+
+            return SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  try {
+                    // Create Restaurant object from RestaurantDetail
+                    final restaurantObj = Restaurant(
+                      id: restaurant.id,
+                      name: restaurant.name,
+                      description: restaurant.description,
+                      pictureId: restaurant.pictureId,
+                      city: restaurant.city,
+                      rating: restaurant.rating,
+                    );
+
+                    await favoriteProvider.toggleFavorite(restaurantObj);
+
+                    if (context.mounted) {
+                      final message = isFavorite
+                          ? '${restaurant.name} dihapus dari favorit'
+                          : '${restaurant.name} ditambahkan ke favorit';
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          backgroundColor: isFavorite ? Colors.orange : Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Gagal mengubah status favorit'),
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                ),
+                label: Text(
+                  isFavorite ? 'Hapus dari Favorit' : 'Tambah ke Favorit',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isFavorite ? Colors.orange : Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -1011,7 +1152,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               ),
               child: Text(
                 item.name,
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 14, color: Colors.black),
               ),
             );
           }).toList(),
@@ -1142,33 +1283,27 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
   }
 }
-
 // =============================================================================
-// REVIEW PAGE
+// REVIEW PAGE - Using Provider state management
 // =============================================================================
 
-class ReviewPage extends StatefulWidget {
+class ReviewPage extends StatelessWidget {
   final RestaurantDetail restaurant;
 
   const ReviewPage({super.key, required this.restaurant});
 
   @override
-  State<ReviewPage> createState() => _ReviewPageState();
-}
-
-class _ReviewPageState extends State<ReviewPage> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Reviews - ${widget.restaurant.name}'),
+        title: Text('Reviews - ${restaurant.name}'),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
         children: [
           // Review List
           Expanded(
-            child: widget.restaurant.customerReviews.isEmpty
+            child: restaurant.customerReviews.isEmpty
                 ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1184,9 +1319,9 @@ class _ReviewPageState extends State<ReviewPage> {
             )
                 : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: widget.restaurant.customerReviews.length,
+              itemCount: restaurant.customerReviews.length,
               itemBuilder: (context, index) {
-                final review = widget.restaurant.customerReviews[index];
+                final review = restaurant.customerReviews[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
@@ -1255,31 +1390,33 @@ class _ReviewPageState extends State<ReviewPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => AddReviewBottomSheet(restaurantId: widget.restaurant.id),
+      builder: (context) => AddReviewBottomSheet(restaurantId: restaurant.id),
     );
   }
 }
 
-class AddReviewBottomSheet extends StatefulWidget {
+// =============================================================================
+// ADD REVIEW BOTTOM SHEET - Using Provider state management
+// =============================================================================
+
+class AddReviewBottomSheet extends StatelessWidget {
   final String restaurantId;
 
   const AddReviewBottomSheet({super.key, required this.restaurantId});
 
   @override
-  State<AddReviewBottomSheet> createState() => _AddReviewBottomSheetState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => ReviewFormProvider(),
+      child: _AddReviewForm(restaurantId: restaurantId),
+    );
+  }
 }
 
-class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
-  final _nameController = TextEditingController();
-  final _reviewController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+class _AddReviewForm extends StatelessWidget {
+  final String restaurantId;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _reviewController.dispose();
-    super.dispose();
-  }
+  const _AddReviewForm({required this.restaurantId});
 
   @override
   Widget build(BuildContext context) {
@@ -1287,112 +1424,122 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      child: Consumer<ReviewFormProvider>(
+        builder: (context, formProvider, child) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: formProvider.formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'Tambah Review',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Tambah Review',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: formProvider.nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama Anda',
+                      hintText: 'Masukkan nama Anda',
+                      prefixIcon: Icon(Icons.person),
                     ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Nama tidak boleh kosong';
+                      }
+                      if (value.trim().length < 2) {
+                        return 'Nama minimal 2 karakter';
+                      }
+                      return null;
+                    },
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: formProvider.reviewController,
+                    decoration: const InputDecoration(
+                      labelText: 'Review Anda',
+                      hintText: 'Bagikan pengalaman Anda di restoran ini...',
+                      prefixIcon: Icon(Icons.rate_review),
+                    ),
+                    maxLines: 4,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Review tidak boleh kosong';
+                      }
+                      if (value.trim().length < 10) {
+                        return 'Review minimal 10 karakter';
+                      }
+                      return null;
+                    },
                   ),
+                  const SizedBox(height: 24),
+                  Consumer<RestaurantProvider>(
+                    builder: (context, restaurantProvider, child) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: restaurantProvider.isAddingReview
+                              ? null
+                              : () => _submitReview(
+                              context, formProvider, restaurantProvider),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: restaurantProvider.isAddingReview
+                              ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              SizedBox(width: 12),
+                              Text('Mengirim Review...'),
+                            ],
+                          )
+                              : const Text('Kirim Review'),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
                 ],
               ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Anda',
-                  hintText: 'Masukkan nama Anda',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  if (value.trim().length < 2) {
-                    return 'Nama minimal 2 karakter';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _reviewController,
-                decoration: const InputDecoration(
-                  labelText: 'Review Anda',
-                  hintText: 'Bagikan pengalaman Anda di restoran ini...',
-                  prefixIcon: Icon(Icons.rate_review),
-                ),
-                maxLines: 4,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Review tidak boleh kosong';
-                  }
-                  if (value.trim().length < 10) {
-                    return 'Review minimal 10 karakter';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              Consumer<RestaurantProvider>(
-                builder: (context, provider, child) {
-                  return SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: provider.isAddingReview ? null : _submitReview,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: provider.isAddingReview
-                          ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          SizedBox(width: 12),
-                          Text('Mengirim Review...'),
-                        ],
-                      )
-                          : const Text('Kirim Review'),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Future<void> _submitReview() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitReview(
+      BuildContext context,
+      ReviewFormProvider formProvider,
+      RestaurantProvider restaurantProvider,
+      ) async {
+    if (!formProvider.validateForm()) return;
 
-    final provider = Provider.of<RestaurantProvider>(context, listen: false);
-    final success = await provider.addReview(
-      widget.restaurantId,
-      _nameController.text.trim(),
-      _reviewController.text.trim(),
+    final success = await restaurantProvider.addReview(
+      restaurantId,
+      formProvider.nameController.text.trim(),
+      formProvider.reviewController.text.trim(),
     );
 
-    if (mounted) {
+    if (context.mounted) {
       if (success) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1416,7 +1563,7 @@ class _AddReviewBottomSheetState extends State<AddReviewBottomSheet> {
 }
 
 // =============================================================================
-// SETTINGS PAGE
+// SETTINGS PAGE - Already using Provider correctly
 // =============================================================================
 
 class SettingsPage extends StatelessWidget {

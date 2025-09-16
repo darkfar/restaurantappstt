@@ -6,7 +6,185 @@ import 'dart:async';
 import '../data/data.dart'; // Import semua dari file data.dart yang sudah berisi DatabaseHelper, ApiResponse, Restaurant, dll.
 import '../utils/utils.dart'; // Import utils yang berisi NotificationHelper
 
-// Theme Provider
+// ============================================================================
+// NAVIGATION PROVIDER - For managing bottom navigation state
+// ============================================================================
+
+class NavigationProvider extends ChangeNotifier {
+  int _selectedIndex = 0;
+
+  int get selectedIndex => _selectedIndex;
+
+  void setSelectedIndex(int index) {
+    if (_selectedIndex != index) {
+      _selectedIndex = index;
+      notifyListeners();
+    }
+  }
+
+  void resetToHome() {
+    setSelectedIndex(0);
+  }
+
+  bool get isOnHomePage => _selectedIndex == 0;
+  bool get isOnFavoritePage => _selectedIndex == 1;
+  bool get isOnSettingsPage => _selectedIndex == 2;
+}
+
+// ============================================================================
+// REVIEW FORM PROVIDER - For managing review form state
+// ============================================================================
+
+class ReviewFormProvider extends ChangeNotifier {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  TextEditingController get nameController => _nameController;
+  TextEditingController get reviewController => _reviewController;
+  GlobalKey<FormState> get formKey => _formKey;
+
+  String _name = '';
+  String _review = '';
+  bool _isValid = false;
+
+  String get name => _name;
+  String get review => _review;
+  bool get isValid => _isValid;
+
+  ReviewFormProvider() {
+    _nameController.addListener(_onNameChanged);
+    _reviewController.addListener(_onReviewChanged);
+  }
+
+  void _onNameChanged() {
+    _name = _nameController.text;
+    _validateForm();
+  }
+
+  void _onReviewChanged() {
+    _review = _reviewController.text;
+    _validateForm();
+  }
+
+  void _validateForm() {
+    bool wasValid = _isValid;
+    _isValid = _name.trim().isNotEmpty &&
+        _name.trim().length >= 2 &&
+        _review.trim().isNotEmpty &&
+        _review.trim().length >= 10;
+
+    if (wasValid != _isValid) {
+      notifyListeners();
+    }
+  }
+
+  bool validateForm() {
+    return _formKey.currentState?.validate() ?? false;
+  }
+
+  void clearForm() {
+    _nameController.clear();
+    _reviewController.clear();
+    _name = '';
+    _review = '';
+    _isValid = false;
+    notifyListeners();
+  }
+
+  void setInitialValues({String? name, String? review}) {
+    if (name != null) {
+      _nameController.text = name;
+      _name = name;
+    }
+    if (review != null) {
+      _reviewController.text = review;
+      _review = review;
+    }
+    _validateForm();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _reviewController.dispose();
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// UI STATE PROVIDER - For managing UI-specific states
+// ============================================================================
+
+class UIStateProvider extends ChangeNotifier {
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? _successMessage;
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  String? get successMessage => _successMessage;
+
+  void setLoading(bool loading) {
+    if (_isLoading != loading) {
+      _isLoading = loading;
+      // Clear messages when loading state changes
+      if (loading) {
+        _errorMessage = null;
+        _successMessage = null;
+      }
+      notifyListeners();
+    }
+  }
+
+  void setError(String? error) {
+    _errorMessage = error;
+    _isLoading = false;
+    _successMessage = null;
+    notifyListeners();
+  }
+
+  void setSuccess(String? success) {
+    _successMessage = success;
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearMessages() {
+    if (_errorMessage != null || _successMessage != null) {
+      _errorMessage = null;
+      _successMessage = null;
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+    }
+  }
+
+  void clearSuccess() {
+    if (_successMessage != null) {
+      _successMessage = null;
+      notifyListeners();
+    }
+  }
+
+  void reset() {
+    _isLoading = false;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+  }
+}
+
+// ============================================================================
+// THEME PROVIDER
+// ============================================================================
+
 class ThemeProvider extends ChangeNotifier {
   final PreferencesHelper preferencesHelper;
 
@@ -78,7 +256,10 @@ class ThemeProvider extends ChangeNotifier {
   }
 }
 
-// Settings Provider
+// ============================================================================
+// SETTINGS PROVIDER
+// ============================================================================
+
 class SettingsProvider extends ChangeNotifier {
   final PreferencesHelper preferencesHelper;
   late final NotificationHelper notificationHelper;
@@ -182,9 +363,9 @@ class SettingsProvider extends ChangeNotifier {
   }
 }
 
-// Restaurant Provider
-// lib/providers/restaurant_provider.dart
-// Update your existing RestaurantProvider in providers.dart with this version:
+// ============================================================================
+// RESTAURANT PROVIDER
+// ============================================================================
 
 class RestaurantProvider extends ChangeNotifier {
   ApiService? _apiService;
@@ -332,7 +513,10 @@ class RestaurantProvider extends ChangeNotifier {
   }
 }
 
-// Favorite Provider
+// ============================================================================
+// FAVORITE PROVIDER
+// ============================================================================
+
 class FavoriteProvider extends ChangeNotifier {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
